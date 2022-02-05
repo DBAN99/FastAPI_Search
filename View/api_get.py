@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-
+from Presenter import pre_request
 
 router = APIRouter()
 
@@ -13,7 +13,5 @@ async def get_search_company(query : str):
 # 회사 검색 (회사명)
 @router.get('/companies', tags=["Search"])
 async def get_search_company():
-    result = '검색'
-
+    result = pre_request.pre_get_name()
     return result
-

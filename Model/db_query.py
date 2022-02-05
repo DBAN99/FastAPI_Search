@@ -15,3 +15,10 @@ def db_commit():
 def db_close():
     return session.close()
 
+
+
+# Company
+def db_serch_name():
+    result = session.query(company.data).filter(company.data.comparator['tags']=="원티드랩").all()
+
+    return result
