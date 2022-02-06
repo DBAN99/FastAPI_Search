@@ -11,13 +11,6 @@ class Company(Base):
     company_name = Column(JSON, Computed("JSON_EXTRACT(data, '$.company')"))
     tag_name = Column(JSON, Computed("JSON_EXTRACT(data, '$.tag_name')"))
 
-    company_name_en = Column(VARCHAR(255), Computed("JSON_EXTRACT(company_name, '$.en')"))
-    company_name_ko = Column(VARCHAR(255), Computed("JSON_EXTRACT(company_name, '$.ko')"))
-    company_name_ja = Column(VARCHAR(255), Computed("JSON_EXTRACT(company_name, '$.ja')"))
-
-    tag_name_en = Column(VARCHAR(255), Computed("JSON_EXTRACT(tag_name, '$.en')"))
-    tag_name_ko = Column(VARCHAR(255), Computed("JSON_EXTRACT(tag_name, '$.ko')"))
-    tag_name_ja = Column(VARCHAR(255), Computed("JSON_EXTRACT(tag_name, '$.ja')"))
 
 
 # alter table company add company_name JSON as (JSON_EXTRACT(data, '$.company')) stored, add fulltext (company_name);

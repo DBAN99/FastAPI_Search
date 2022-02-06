@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from Model import db_connection
 from Model import db_query
 from fastapi.responses import JSONResponse
@@ -10,13 +12,22 @@ close  = db_query.db_close
 def pre_get_auto_name(name,language):
 
     try:
-        result = name
+        result = db_query.db_search_auto(name)
+
     except:
-        result = JSONResponse(status_code=400, content="URL ERROR")
+        raise HTTPException(status_code=400, detail="URL ERROR")
+        # result = JSONResponse(status_code=400, content="URL ERROR")
 
     else:
         if result == []:
-            result = JSONResponse(status_code=404, content="Data Not Found")
+            # result = JSONResponse(status_code=404, content="Data Not Found")
+            raise HTTPException(status_code=404, detail="Data Not Found")
+
+        #검색시 2개 이상의 데이터가 왔을 때는 어떻게 처리?
+        result = result["company_name"][language]
+
+        if result == "null":
+            raise HTTPException(status_code=404, detail="Data Not Found")
 
     finally:
         session.close()
@@ -26,32 +37,22 @@ def pre_get_auto_name(name,language):
 def pre_get_language_name(name, language):
 
     try:
-        result = db_query.db_serch_name(name)
-        print(language)
+        search_company = db_query.db_serch_name(name)
+        search_tag = db_query.db_serch_tag(name)
 
     except:
-        result = JSONResponse(status_code=400, content="URL ERROR")
+        raise HTTPException(status_code=400, detail="URL ERROR")
+        # result = JSONResponse(status_code=400, content="URL ERROR")
 
     else:
-        if result == [] or result == 'null':
-            result = JSONResponse(status_code=404, content="Data Not Found")
+        result = {}
 
-    finally:
-        session.close()
+        if search_company == None:
+            # result = JSONResponse(status_code=404, content="Data Not Found")
+            raise HTTPException(status_code=404, detail="Data Not Found")
 
-    return result
-
-def pre_get_fulltext_name():
-
-    try:
-        result = db_query.db_fulltext()
-
-    except:
-        result = JSONResponse(status_code=400, content="URL ERROR")
-
-    else:
-        if result == []:
-            result = JSONResponse(status_code=404, content="Data Not Found")
+        result["company_name"] = search_company["company_name"][language]
+        result["tag_name"] = search_tag["tag_name"][language]
 
     finally:
         session.close()

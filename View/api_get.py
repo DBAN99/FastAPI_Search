@@ -7,7 +7,7 @@ router = APIRouter()
 @router.get('/search', tags=["Search"])
 async def get_search_company(query: str ,x_wanted_language: str = Header(None)):
     result = pre_request.pre_get_auto_name(query,x_wanted_language)
-    return {"company_name" : result}
+    return result
 
 
 # 회사 검색 (회사명)
@@ -15,4 +15,4 @@ async def get_search_company(query: str ,x_wanted_language: str = Header(None)):
 async def get_search_company(name : str, x_wanted_language: str = Header(None)):
     result = pre_request.pre_get_language_name(name, x_wanted_language)
 
-    return {"company_name" : result}
+    return result
