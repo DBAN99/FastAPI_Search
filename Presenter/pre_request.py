@@ -1,3 +1,5 @@
+import json
+
 from fastapi import HTTPException
 
 from Model import db_connection
@@ -9,24 +11,22 @@ session = engine.sessionmaker()
 commit = db_query.db_commit
 close  = db_query.db_close
 
+# ---------------------- GET ------------------------------
+
 def pre_get_auto_name(name,language):
 
     try:
         result = db_query.db_search_auto(name)
+        result = {"company_name": result["company_name"][language]}
 
     except:
         raise HTTPException(status_code=400, detail="URL ERROR")
-        # result = JSONResponse(status_code=400, content="URL ERROR")
 
     else:
         if result == []:
-            # result = JSONResponse(status_code=404, content="Data Not Found")
             raise HTTPException(status_code=404, detail="Data Not Found")
 
-        #검색시 2개 이상의 데이터가 왔을 때는 어떻게 처리?
-        result = result["company_name"][language]
-
-        if result == "null":
+        elif result == "null":
             raise HTTPException(status_code=404, detail="Data Not Found")
 
     finally:
@@ -37,24 +37,77 @@ def pre_get_auto_name(name,language):
 def pre_get_language_name(name, language):
 
     try:
+        result = {}
         search_company = db_query.db_serch_name(name)
         search_tag = db_query.db_serch_tag(name)
 
-    except:
-        raise HTTPException(status_code=400, detail="URL ERROR")
-        # result = JSONResponse(status_code=400, content="URL ERROR")
-
-    else:
-        result = {}
-
-        if search_company == None:
-            # result = JSONResponse(status_code=404, content="Data Not Found")
-            raise HTTPException(status_code=404, detail="Data Not Found")
-
         result["company_name"] = search_company["company_name"][language]
         result["tag_name"] = search_tag["tag_name"][language]
+
+    except:
+        raise HTTPException(status_code=400, detail="URL ERROR")
+
+    else:
+        if search_company == None:
+            raise HTTPException(status_code=404, detail="Data Not Found")
+
 
     finally:
         session.close()
 
     return result
+
+# -------------------- POST -------------------------
+def pre_post_add(add):
+
+    try:
+        name_data = add.company_name
+        tag_data = add.tags
+
+        query_data = json_control(tag_data, name_data)
+        db_query.db_post_add(query_data)
+        db_query.db_commit()
+
+    except:
+        result = JSONResponse(status_code=400, content="URL ERROR")
+
+    else:
+        result = JSONResponse(status_code=200, content="OK")
+
+    finally:
+        session.close()
+
+    return result
+
+
+# ----------- 데이터 형식을 맞추기 위한 처리----------------
+def json_control(data_tag,data_name):
+
+    list_len = len(data_tag)
+    tag_data = data_tag[0]["tag_name"]
+
+    keys = tag_data.keys()
+
+    list_key = list(keys)
+    key_len = len(list_key)
+
+    language_tag = {}
+
+    for i in range(list_len):
+        tags = ""
+        for j in range(key_len):
+
+            tags_data = data_tag[i]["tag_name"][list_key[j]]
+
+            if j == 0:
+                tags += tags_data
+            else:
+                tags += "|" + tags_data
+
+        language_tag[list_key[i]] = tags
+
+    result_data = {}
+    result_data["company"] = data_name
+    result_data["tag_name"] = language_tag
+
+    return result_data

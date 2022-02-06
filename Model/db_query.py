@@ -16,7 +16,7 @@ def db_close():
     return session.close()
 
 def db_search_auto(name):
-    result = session.query(company.company_name).filter(company.company_name.like('%{}%'.format(name))).all()
+    result = session.query(company.company_name).filter(company.company_name.like('%{}%'.format(name))).first()
 
     return result
 
@@ -29,5 +29,13 @@ def db_serch_name(name):
 
 def db_serch_tag(name):
     result = session.query(company.tag_name).filter(company.company_name.like('%{}%'.format(name))).first()
+
+    return result
+
+# --------------------------------------------------
+
+def db_post_add(add):
+    add_data = company(data=add)
+    result = session.add(add_data)
 
     return result
