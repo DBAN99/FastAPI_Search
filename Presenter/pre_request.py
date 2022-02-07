@@ -15,17 +15,17 @@ def pre_get_auto_name(name,language):
 
     try:
         result = db_query.db_search_auto(name)
-        result = {"company_name": result["company_name"][language]}
+
 
     except:
         raise HTTPException(status_code=400, detail="URL ERROR")
 
     else:
-        if result == []:
+        if result == None:
             raise HTTPException(status_code=404, detail="Data Not Found")
 
-        elif result == "null":
-            raise HTTPException(status_code=404, detail="Data Not Found")
+        else:
+            result = {"company_name": result["company_name"][language]}
 
     finally:
         session.close()
@@ -39,17 +39,15 @@ def pre_get_language_name(name, language):
         search_company = db_query.db_serch_name(name)
         search_tag = db_query.db_serch_tag(name)
 
-        result["company_name"] = search_company["company_name"][language]
-        result["tags"] = search_tag["tag_name"][language]
-
     except:
         raise HTTPException(status_code=400, detail="URL ERROR")
 
     else:
         if search_company == None:
             raise HTTPException(status_code=404, detail="Data Not Found")
-
-
+        else:
+            result["company_name"] = search_company["company_name"][language]
+            result["tags"] = search_tag["tag_name"][language]
     finally:
         session.close()
 
@@ -65,6 +63,7 @@ def pre_post_add(add,language):
         query_data = json_control(tag_data, name_data)
         db_query.db_post_add(query_data)
         db_query.db_commit()
+
         db_data = db_query.db_post_new()
         result = {}
 
