@@ -1,5 +1,3 @@
-import json
-
 from fastapi import HTTPException
 
 from Model import db_connection
@@ -9,7 +7,7 @@ from fastapi.responses import JSONResponse
 engine = db_connection.engineconn()
 session = engine.sessionmaker()
 commit = db_query.db_commit
-close  = db_query.db_close
+close = db_query.db_close
 
 # ---------------------- GET ------------------------------
 
@@ -42,7 +40,7 @@ def pre_get_language_name(name, language):
         search_tag = db_query.db_serch_tag(name)
 
         result["company_name"] = search_company["company_name"][language]
-        result["tag_name"] = search_tag["tag_name"][language]
+        result["tags"] = search_tag["tag_name"][language]
 
     except:
         raise HTTPException(status_code=400, detail="URL ERROR")
@@ -58,7 +56,7 @@ def pre_get_language_name(name, language):
     return result
 
 # -------------------- POST -------------------------
-def pre_post_add(add):
+def pre_post_add(add,language):
 
     try:
         name_data = add.company_name
@@ -67,12 +65,17 @@ def pre_post_add(add):
         query_data = json_control(tag_data, name_data)
         db_query.db_post_add(query_data)
         db_query.db_commit()
+        db_data = db_query.db_post_new()
+        result = {}
+
+        result["company_name"] = db_data["data"]["company"][language]
+        result["tags"] = db_data["data"]["tag_name"][language]
 
     except:
         result = JSONResponse(status_code=400, content="URL ERROR")
 
     else:
-        result = JSONResponse(status_code=200, content="OK")
+        pass
 
     finally:
         session.close()

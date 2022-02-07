@@ -5,7 +5,7 @@ router = APIRouter()
 
 # 회사 검색 (자동완성)
 @router.get('/search', tags=["Search"])
-async def get_search_company(query: str ,x_wanted_language: str = Header(None)):
+async def get_auto_search_company(query: str ,x_wanted_language: str = Header(None)):
     result = pre_request.pre_get_auto_name(query,x_wanted_language)
     return result
 
