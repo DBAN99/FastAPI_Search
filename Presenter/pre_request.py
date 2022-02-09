@@ -44,7 +44,7 @@ def pre_get_language_name(name, language):
 
     else:
         if search_company == None:
-            raise HTTPException(status_code=404, detail="Data Not Found")
+            result = JSONResponse(status_code=404, content="Data Not Found")
         else:
             result["company_name"] = search_company["company_name"][language]
             result["tags"] = search_tag["tag_name"][language]
